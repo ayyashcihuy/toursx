@@ -1,85 +1,91 @@
-const fs = require("fs");
-const dummyData = JSON.parse(
-  fs.readFileSync(`./dev-data/data/tours-simple.json`)
-);
+const Tour = require("../models/tourModel");
+
 class toursController {
-  static getAllTours(req, res, next) {
-    res.status(200).json({
-      status: "success",
-      results: dummyData.length,
-      data: {
-        tours: dummyData,
-      },
-    });
-  }
-
-  static createNewTour(req, res, next) {
-    const newId = dummyData[dummyData.length - 1].id + 1;
-    const newTour = Object.assign({ id: newId }, req.body);
-
-    dummyData.push(newTour);
-
-    fs.writeFile(
-      `${__dirname}/dev-data/data/tours-simple.json`,
-      JSON.stringify(dummyData),
-      (err) => {
-        res.status(201).json({
-          status: "success",
-          data: {
-            tour: newTour,
-          },
-        });
-      }
-    );
-  }
-
-  static getSingleTour(req, res, next) {
-    const id = +req.params.id;
-    const tour = dummyData.find((e) => e.id === id);
-
-    if (!tour) {
-      return res.status(404).json({
-        status: "fail",
-        message: "Invalid ID",
+  static getAllTours = async (req, res, next) => {
+    try {
+      const tours = await Tour.find();
+      res.status(200).json({
+        status: "success",
+        results: tours.length,
+        data: {
+          tours,
+        },
+      });
+    } catch (err) {
+      res.status(404).json({
+        status: "Failed",
+        message: err,
       });
     }
+  };
 
-    res.status(200).json({
-      status: "success",
-      results: dummyData.length,
-      data: {
-        tour,
-      },
-    });
-  }
-
-  static updateTour(req, res, next) {
-    const id = +req.params.id;
-    if (id > dummyData.length) {
-      return res.status(404).json({
-        status: "fail",
-        message: "Invalid ID",
+  static createNewTour = async (req, res, next) => {
+    try {
+      const newTour = await Tour.create(req.body);
+      res.status(201).json({
+        status: "success",
+        data: {
+          tour: newTour,
+        },
+      });
+    } catch (err) {
+      res.status(400).json({
+        status: "Failed",
+        message: "Invalid Data Sent!",
       });
     }
-    res.status(200).json({
-      status: "success",
-      data: `<Updated Data Here>`,
-    });
-  }
+  };
 
-  static deleteTour(req, res, next) {
-    const id = +req.params.id;
-    if (id > dummyData.length) {
-      return res.status(404).json({
-        status: "fail",
-        message: "Invalid ID",
+  static getSingleTour = async (req, res, next) => {
+    try {
+      const tour = await Tour.findById(req.params.id);
+      res.status(200).json({
+        status: "success",
+        results: tour.length,
+        data: {
+          tour,
+        },
+      });
+    } catch (err) {
+      res.status(404).json({
+        status: "Failed",
+        message: "Data Not Found",
       });
     }
-    res.status(204).json({
-      status: "success",
-      data: null,
-    });
-  }
+  };
+
+  static updateTour = async (req, res, next) => {
+    try {
+      const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
+        new: true,
+        runValidators: true,
+      });
+      res.status(200).json({
+        status: "success",
+        data: { tour },
+      });
+    } catch (err) {
+      res.status(404).json({
+        status: "Failed",
+        message: err,
+      });
+    }
+  };
+
+  static deleteTour = async (req, res, next) => {
+    try {
+      await Tour.findByIdAndDelete(req.params.id);
+      res.status(204).json({
+        status: "success",
+        data: null,
+      });
+    } catch (err) {
+      res.status(404).json({
+        status: "Failed",
+        message: err,
+      });
+    }
+  };
 }
 
 module.exports = toursController;
