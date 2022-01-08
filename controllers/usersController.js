@@ -5,30 +5,30 @@ class usersController {
       message: "route not defined",
     });
   }
-  static getSingleUser = (req, res) => {
+  static getSingleUser(req, res) {
     res.status(500).json({
       status: "error",
       message: "route not defined",
     });
-  };
-  static createUser = (req, res) => {
+  }
+  static createUser(req, res) {
     res.status(500).json({
       status: "error",
       message: "route not defined",
     });
-  };
-  static updateUser = (req, res) => {
+  }
+  static updateUser(req, res) {
     res.status(500).json({
       status: "error",
       message: "route not defined",
     });
-  };
-  static deleteUser = (req, res) => {
+  }
+  static deleteUser(req, res) {
     res.status(500).json({
       status: "error",
       message: "route not defined",
     });
-  };
+  }
 }
 
 module.exports = usersController;
